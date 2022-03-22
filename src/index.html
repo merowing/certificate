@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>PDF certificate</title>
+        <style type="text/css">
+            html, body {
+                padding: 0;
+                margin: 0;
+                height: 100%;
+            }
+            header {
+                width: 100%;
+                height: 40px;
+                background-color: lightgray;
+                -webkit-app-region: drag;
+                position: fixed;
+                top: 0;
+                display: flex;
+                align-items: center;
+                padding-left: 10px;
+            }
+            main {
+                overflow: hidden;
+                height: inherit;
+                display: flex;
+                flex-direction: column;
+            }
+            .buttons {
+                margin-top: 40px;
+            }
+            .buttons ul {
+                display: flex;
+                justify-content: space-between;
+                list-style: none;
+                padding: 0;
+                margin: 0;
+            }
+            .content {
+                height: 100%;
+            }
+            .names {
+                overflow-y: auto;
+                flex-grow: 1;
+                border-top: 1px solid lightgray;
+            }
+            table {
+                width: 100%;
+                border-collapse: collapse;
+            }
+            table input {
+                width: 100%;
+                outline: none;
+                box-sizing: border-box;
+            }
+            table tr td:first-child input {
+                width: auto;
+                vertical-align: middle;
+            }
+            div.names table tr.mistake {
+                background-color: red;
+            }
+            td {
+                width: 5%;
+                padding: 10px 12px;
+            }
+            td:nth-child(3) {
+                width: 1%;
+            }
+            td:nth-child(5) {
+                width: 75%;
+            }
+            div.names > table tr:hover {
+                cursor: pointer;
+                background-color: lightgray;
+            }
+            div.names > table tr:hover .editicon {
+                visibility: visible;
+            }
+            .names table tr:nth-child(2n) {
+                background-color: whitesmoke;
+            }
+            button {
+                padding: 12px 14px;
+                font: normal 12px Verdana;
+                border: 1px solid white;
+                border-radius: 6px;
+                cursor: pointer;
+                margin: 12px;
+                outline: none;
+                width: 170px;
+            }
+
+            .createButton {
+                background-color: bisque;
+            }
+            .createButton:hover {
+                border: 1px solid darksalmon;
+            }
+
+            .loadButton {
+                background-color: palegreen;
+            }
+            .loadButton:hover {
+                border: 1px solid darkseagreen;
+            }
+
+            .createLayout {
+                background-color: darkseagreen;
+            }
+            .createLayout:hover {
+                border: 1px solid darkgreen;
+            }
+
+            .buttons li:first-child {
+                display: none;
+            }
+            .cancelButton:hover {
+                border: 1px solid darkgray;
+            }
+
+            .selected {
+                background-color: lightgray;
+            }
+
+            @media all and (min-width: 580px) {
+                div.editWindow {
+                    width: 460px;
+                    margin-left: -230px;
+                }
+            }
+
+            @media all and (min-width: 491px) and (max-width: 580px) {
+                button {
+                    width: 140px;
+                    height: 56px;
+                }
+            }
+            @media all and (min-width: 431px) and (max-width: 490px) {
+                button {
+                    width: 120px;
+                    height: 56px;
+                }
+            }
+            @media all and (min-width: 371px) and (max-width: 430px) {
+                button {
+                    width: 100px;
+                    height: 56px;
+                    padding: 12px 8px;
+                }
+            }
+            @media all and (min-width: 221px) and (max-width: 370px) {
+                .buttons ul {
+                    flex-direction: column;
+                    align-items: center;
+                }
+                button {
+                    width: 200px;
+                }
+            }
+            @media all and (max-width: 220px) {
+                .buttons ul {
+                    flex-direction: column;
+                    align-items: center;
+                }
+                button {
+                    padding-left: 10px;
+                    padding-right: 10px;
+                    width: 160px;
+                }
+            }
+
+            .img {
+                background-size: contain;
+                background-position: center top;
+                background-repeat: no-repeat;
+                width: 100%;
+                height: 200px;
+            }
+
+            .optButtons {
+                border-top: 1px solid lightgray;
+                visibility: hidden;
+                display: none;
+                text-align: right;
+                padding: 12px;
+                display: flex;
+                justify-content: flex-start;
+                align-items: center;
+            }
+            .optButtons > div {
+                display: inline-block;
+                padding: 6px 10px;
+                background-color: gray;
+                color: white;
+                cursor: pointer;
+                margin-left: 12px;
+            }
+            .optButtons > div:hover {
+                background-color: orangered;
+            }
+
+            .loader {
+                width: 20px;
+                font-size: 0;
+            }
+            .loader > img {
+                width: 100%;
+            }
+            .progress {
+                display: none;
+            }
+            .progress span:first-child {
+                margin-left: 16px;
+            }
+            .mailicon {
+                background: url('./images/mailicon.png') no-repeat;
+                width: 22px;
+                height: 20px;
+                background-size: cover;
+                background-position: 0 0;
+            }
+            .mailicon.disable {
+                background-position: -21px 0;
+                opacity: 0.7;
+            }
+
+            .editicon {
+                background: url('./images/editicon.png') no-repeat;
+                width: 13px;
+                height: 20px;
+                background-size: cover;
+                background-position: -13px 0;
+                visibility: hidden;
+            }
+            .editicon:hover,
+            td:nth-child(4):hover .editicon {
+                background-position: 0 0;
+            }
+            
+            .editWindow {
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                width: 380px;
+                background-color: white;
+                z-index: 100;
+                margin-left: -190px;
+                margin-top: -110px;
+                display: none;
+            }
+            .editWindow table {
+                padding: 6px;
+                border-collapse: unset;
+            }
+            .editWindow table tr:nth-child(2n) {
+                background-color: white;
+            }
+            .editWindow table td:nth-child(2n+1) {
+                width: 25%;
+                text-align: right;
+            }
+            .editWindow table td:nth-child(2n) {
+                width: 75%;
+            }
+            .editWindow table input {
+                height: 28px;
+                padding-left: 4px;
+            }
+            .saveButton {
+                text-align: right;
+            }
+            .saveButton button {
+                width: auto;
+                height: auto;
+                margin: 0;
+                background-color: lightgreen;
+                padding: 0 10px;
+                border-radius: 0;
+                height: 34px;
+            }
+            .saveButton button:hover {
+                color: white;
+            }
+            .backgroundEdit {
+                background-color: black;
+                position: absolute;
+                top: 0;
+                width: 100%;
+                height: 100%;
+                opacity: 0.6;
+                display: none;
+            }
+            .editWindow table td.saveError {
+                width: 90%;
+                color: red;
+                text-align: left;
+            }
+        </style>
+    </head>
+<body>
+    <header></header>
+    <main>
+        <div class="buttons">
+            <div>
+                <ul>
+                    <li><button class="cancelButton">Відмінити</button></li>
+                    <li><button class="createButton">Створити сертифікат</button></li>
+                    <li><button class="loadButton">Завантажити xlsx</button></li>
+                    <li><button class="createLayout">Створити макет</button></li>
+                </ul>
+            </div>
+        </div>
+        <div class="optButtons">
+            <span>Обрано: </span><span></span>
+            <div class="cancel">Відмінити</div>
+            <div class="edit">Редагувати</div>
+            <div class="del">Знищити</div>
+        </div>
+        <div class="names">
+            <table></table>
+            <div class="table-disable"></div>
+
+            <div class="editWindow">
+                <table>
+                    <tbody>
+                        <tr>
+                            <td>Сертифікат</td>
+                            <td><input type="text" value=""></td>
+                        </tr>
+                        <tr>
+                            <td>Ім'я</td>
+                            <td><input type="text" value=""></td>
+                        </tr>
+                        <tr>
+                            <td>Пошта</td>
+                            <td><input type="text" value=""></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <table>
+                    <tbody>
+                        <tr>
+                            <td class="saveError"></td>
+                            <td class="saveButton"><button>Зберегти</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="backgroundEdit"></div>
+        </div>
+    </main>
+    <script src="./index.js"></script>
+</body>
+</html>

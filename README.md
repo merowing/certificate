@@ -7,3 +7,6 @@ Used electron-packager to convert source to *.exe file.
 1. git clone
 2. git install --only=dev
 3. npm start
+<br>
+
+*examples* - folder with certificate image template and Excel file with list of names.
